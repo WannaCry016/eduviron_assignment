@@ -2,6 +2,17 @@
 
 NestJS + PostgreSQL service that delivers fee dashboards, CSV exports, and monitoring streams for ~1000 schools. Every component (auth, reports, seeding, migrations, Docker, Kubernetes) is wired and build-tested via `npm run build`.
 
+### Architecture Overview
+- **API**: Modular NestJS project (auth, users, students, e-bills, 	ransactions, 
+eports). ValidationPipe enforces DTO contracts; throttling protects shared resources.
+- **Data**: PostgreSQL with TypeORM entities/migrations. Indices on status/due dates support large analytical queries.
+- **AuthN/Z**: JWT-based login plus permission & field-level masking via PermissionsGuard. Role policies (ROLE_POLICIES) define allowed actions and data visibility.
+- **Reporting**:
+  - /reports/dashboard: Aggregated due vs collected, breakdowns by school/payment/grade, sampled outstanding bills.
+  - /reports/pending-payments: Paginated outstanding queue; /export variant emits CSV (admin optional feature).
+  - /reports/transactions/failures: Monitoring feed for developers with filters (optional monitoring requirement).
+- **Data seeding**: `npm run seed` synthesizes ~60k students and millions of fee/transaction rows using Faker to mimic irregular payment flows across 1000 schools.
+
 ---
 
 ### 1. Prerequisites
@@ -35,7 +46,7 @@ cp env.example .env        # edit DB + JWT values if needed
 ```bash
 npm run build              # verifies TypeScript + Nest compilation
 npm run migration:run      # creates all tables/enums in PostgreSQL
-npm run seed               # populates users, students, fee bills, transactions (~3k students by default)
+n`npm run seed`               # populates users, students, fee bills, transactions (~3k students by default)
 ```
 
 **Step 4: Start the API**
@@ -59,7 +70,7 @@ npm run start:dev          # API runs on http://localhost:3000
 - **Authentication:** `/auth/login` issues JWTs with role + permissions. PermissionsGuard enforces scopes; field masking honors `fieldMasks`.
 - **Reporting APIs:** `/reports/dashboard`, `/reports/pending-payments`, `/reports/pending-payments/export`, `/reports/transactions/failures` all backed by TypeORM queries and have pagination/CSV streaming implemented.
 - **Database Layer:** Entities + migration `1700000000000-init-schema.ts` create the full schema. `npm run migration:run` succeeds using the shared `data-source.ts`.
-- **Seeding:** `npm run seed` wipes lookup tables (students, fee bills, transactions) and repopulates them with Faker data (~3k students by default). Seed volume is controlled by `SEED_*` env vars.
+- **Seeding:** `n`npm run seed`` wipes lookup tables (students, fee bills, transactions) and repopulates them with Faker data (~3k students by default). Seed volume is controlled by `SEED_*` env vars.
 - **Guards/Decorators:** JWT guard + permissions decorator verified via `npm run build`. Current user decorator injects `AuthenticatedUser`.
 - **Container/K8s:** Dockerfile, Compose stack, and `k8s/` manifests are aligned with `.env` keys.
 
@@ -138,10 +149,10 @@ Now run these requests in order (they'll automatically use the token):
 - Different roles see different data based on permissions
 
 **Troubleshooting:**
-- If login fails: Check that seed ran successfully (`npm run seed`)
+- If login fails: Check that seed ran successfully (`n`npm run seed``)
 - If endpoints return 401: Token expired or invalid - re-login and update variable
 - If endpoints return 403: User lacks required permissions - use super.admin
-- If no data: Ensure seed completed (`npm run seed` should show "Seeding complete")
+- If no data: Ensure seed completed (`n`npm run seed`` should show "Seeding complete")
 
 ---
 
@@ -149,7 +160,7 @@ Now run these requests in order (they'll automatically use the token):
 - Create the database (`createdb reporting`) and grant ownership to your app user.
 - Update `.env` with `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`.
 - `npm run migration:run` → creates tables/enums; rerun on schema changes.
-- `npm run seed` → regenerates users/students/bills/transactions; skip in prod if you already have live data.
+- `n`npm run seed`` → regenerates users/students/bills/transactions; skip in prod if you already have live data.
 
 ---
 
@@ -182,7 +193,7 @@ If you prefer containerized setup:
    `kubectl apply -f k8s/deployment.yaml -f k8s/service.yaml`
 5. Run migrations/seeds inside the cluster once:
    - `kubectl exec -it deploy/reporting-engine -- npm run migration:run`
-   - `kubectl exec -it deploy/reporting-engine -- npm run seed`
+   - `kubectl exec -it deploy/reporting-engine -- n`npm run seed``
 6. Readiness/Liveness probes target `/health`. Verify with `kubectl get pods` or port-forward `kubectl port-forward svc/reporting-engine 8080:80`.
 
 ---
@@ -200,7 +211,7 @@ If you prefer containerized setup:
 - `npm run lint` – ESLint/Prettier
 - `npm run test` – unit test placeholder (extend with Jest suites)
 - `npm run test:e2e` – Nest e2e harness (requires running DB)
-- `npm run seed` – regenerate synthetic dataset (expect a few minutes)
+- `n`npm run seed`` – regenerate synthetic dataset (expect a few minutes)
 
 ---
 
@@ -242,7 +253,7 @@ Feel free to reach out for walkthroughs or further productionization help.
 - `npm run lint` – ESLint/Prettier cleanup.
 - `npm run test` – placeholder for Jest unit tests; extend with more suites as needed.
 - `npm run test:e2e` – Nest e2e harness against a running database.
-- `npm run seed` – generates benchmarking data (expect a few minutes).
+- `n`npm run seed`` – generates benchmarking data (expect a few minutes).
 
 ### Transparency on External Help
 - Code authored with Cursor + GPT-based assistance; no external repositories copied. References: NestJS docs, TypeORM docs, AWS whitepapers. Provide Cursor chat export + Postman collection in final submission as required.
