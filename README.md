@@ -3,7 +3,7 @@
 This NestJS + PostgreSQL service provides role-aware fee reporting for ~1000 schools. It delivers admin dashboards, developer monitoring, CSV exports, and fine-grained authorization atop millions of records.
 
 ### Architecture Overview
-- **API**: Modular NestJS project (uth, users, students, ee-bills, 	ransactions, 
+- **API**: Modular NestJS project (auth, users, students, e-bills, 	ransactions, 
 eports). ValidationPipe enforces DTO contracts; throttling protects shared resources.
 - **Data**: PostgreSQL with TypeORM entities/migrations. Indices on status/due dates support large analytical queries.
 - **AuthN/Z**: JWT-based login plus permission & field-level masking via PermissionsGuard. Role policies (ROLE_POLICIES) define allowed actions and data visibility.
