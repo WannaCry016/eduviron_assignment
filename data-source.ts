@@ -18,7 +18,7 @@ envFiles.forEach((filePath) =>
   }),
 );
 
-export const AppDataSource = new DataSource({
+const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DATABASE_HOST ?? 'localhost',
   port: Number(process.env.DATABASE_PORT ?? 5432),

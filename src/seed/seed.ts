@@ -52,9 +52,10 @@ async function seedStudentsAndFinancials() {
   const feeBillRepo = AppDataSource.getRepository(FeeBill);
   const txnRepo = AppDataSource.getRepository(PaymentTransaction);
 
-  await txnRepo.delete({});
-  await feeBillRepo.delete({});
-  await studentRepo.delete({});
+  // Delete all records (using query builder to avoid empty criteria error)
+  await AppDataSource.createQueryBuilder().delete().from(PaymentTransaction).execute();
+  await AppDataSource.createQueryBuilder().delete().from(FeeBill).execute();
+  await AppDataSource.createQueryBuilder().delete().from(Student).execute();
 
   const schools = Array.from({ length: SCHOOL_COUNT }).map(() => ({
     id: faker.string.uuid(),

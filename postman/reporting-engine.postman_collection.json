@@ -1,12 +1,12 @@
 {
   "info": {
-    "name": "Reporting Engine API",
+    "name": "Reporting Engine API - Live Demo",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Sample queries for authentication and reporting endpoints."
+    "description": "Complete API collection for Reporting Engine. Import this into Postman and set the baseUrl variable. After login, copy the accessToken to the accessToken variable."
   },
   "item": [
     {
-      "name": "Health Check",
+      "name": "1. Health Check",
       "request": {
         "method": "GET",
         "header": [],
@@ -14,11 +14,12 @@
           "raw": "{{baseUrl}}/health",
           "host": ["{{baseUrl}}"],
           "path": ["health"]
-        }
+        },
+        "description": "Verify API is running. Should return { status: 'ok', timestamp, hostname }"
       }
     },
     {
-      "name": "Login",
+      "name": "2. Login - Super Admin",
       "request": {
         "method": "POST",
         "header": [
@@ -35,11 +36,34 @@
           "raw": "{{baseUrl}}/auth/login",
           "host": ["{{baseUrl}}"],
           "path": ["auth", "login"]
-        }
+        },
+        "description": "Login as super admin. Copy the 'accessToken' from response and paste into collection variable 'accessToken'"
       }
     },
     {
-      "name": "Dashboard Summary",
+      "name": "2b. Login - Developer (for monitoring)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"developer\",\n  \"password\": \"ChangeMe123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        },
+        "description": "Login as developer role (has monitoring permissions). Copy token to 'devToken' variable."
+      }
+    },
+    {
+      "name": "3. Dashboard Summary",
       "request": {
         "method": "GET",
         "header": [
@@ -53,11 +77,12 @@
           "raw": "{{baseUrl}}/reports/dashboard",
           "host": ["{{baseUrl}}"],
           "path": ["reports", "dashboard"]
-        }
+        },
+        "description": "Get aggregated dashboard with totals, breakdowns by school/payment method/grade, and outstanding bill samples. Supports filters: ?schoolId=xxx&grade=K&paymentMethod=ONLINE&status=PENDING&from=2024-01-01&to=2024-12-31"
       }
     },
     {
-      "name": "Pending Payments",
+      "name": "4. Pending Payments (Paginated)",
       "request": {
         "method": "GET",
         "header": [
@@ -72,14 +97,41 @@
           "host": ["{{baseUrl}}"],
           "path": ["reports", "pending-payments"],
           "query": [
-            {"key": "page", "value": "1"},
-            {"key": "limit", "value": "20"}
+            {"key": "page", "value": "1", "description": "Page number"},
+            {"key": "limit", "value": "20", "description": "Items per page (max 500)"},
+            {"key": "paymentMethod", "value": "", "disabled": true, "description": "Optional: ONLINE, CASH, BANK_TRANSFER, CHEQUE"},
+            {"key": "status", "value": "", "disabled": true, "description": "Optional: PENDING, PARTIALLY_PAID"}
           ]
-        }
+        },
+        "description": "Get paginated list of pending/partially paid bills. Returns total count and data array."
       }
     },
     {
-      "name": "Transaction Failures",
+      "name": "5. Export Pending Payments (CSV)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/reports/pending-payments/export?limit=100",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "pending-payments", "export"],
+          "query": [
+            {"key": "limit", "value": "100", "description": "Max 5000 rows"},
+            {"key": "paymentMethod", "value": "", "disabled": true},
+            {"key": "status", "value": "", "disabled": true}
+          ]
+        },
+        "description": "Export pending payments as CSV file. Downloads automatically in Postman. Field masking applies based on user role."
+      }
+    },
+    {
+      "name": "6. Transaction Failures (Monitoring)",
       "request": {
         "method": "GET",
         "header": [
@@ -94,15 +146,31 @@
           "host": ["{{baseUrl}}"],
           "path": ["reports", "transactions", "failures"],
           "query": [
-            {"key": "lastHours", "value": "24"}
+            {"key": "lastHours", "value": "24", "description": "Filter by hours (optional)"},
+            {"key": "gateways", "value": "", "disabled": true, "description": "Comma-separated gateway names (optional)"}
           ]
-        }
+        },
+        "description": "Get failed transactions for monitoring. Requires 'reports:monitoring' permission (developer role)."
       }
     }
   ],
   "variable": [
-    {"key": "baseUrl", "value": "http://localhost:3000"},
-    {"key": "accessToken", "value": ""},
-    {"key": "devToken", "value": ""}
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string",
+      "description": "JWT token from login - paste here after step 2"
+    },
+    {
+      "key": "devToken",
+      "value": "",
+      "type": "string",
+      "description": "JWT token from developer login - paste here after step 2b"
+    }
   ]
 }

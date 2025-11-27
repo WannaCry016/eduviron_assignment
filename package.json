@@ -20,7 +20,8 @@
         "test:e2e": "jest --config ./test/jest-e2e.json",
         "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts",
         "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d data-source.ts",
-        "migration:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d data-source.ts"
+        "migration:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d data-source.ts",
+        "verify:demo": "node scripts/verify-demo.js"
     },
     "dependencies": {
         "@faker-js/faker": "^9.9.0",
