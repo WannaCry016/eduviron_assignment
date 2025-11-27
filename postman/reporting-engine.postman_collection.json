@@ -1,0 +1,108 @@
+{
+  "info": {
+    "name": "Reporting Engine API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Sample queries for authentication and reporting endpoints."
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"super.admin\",\n  \"password\": \"ChangeMe123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Dashboard Summary",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/reports/dashboard",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "dashboard"]
+        }
+      }
+    },
+    {
+      "name": "Pending Payments",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/reports/pending-payments?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "pending-payments"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "limit", "value": "20"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Transaction Failures",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{devToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/reports/transactions/failures?lastHours=24",
+          "host": ["{{baseUrl}}"],
+          "path": ["reports", "transactions", "failures"],
+          "query": [
+            {"key": "lastHours", "value": "24"}
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:3000"},
+    {"key": "accessToken", "value": ""},
+    {"key": "devToken", "value": ""}
+  ]
+}
